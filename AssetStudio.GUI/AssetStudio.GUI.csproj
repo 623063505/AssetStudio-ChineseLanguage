@@ -1,0 +1,85 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>WinExe</OutputType>
+        <TargetFrameworks>net8.0-windows</TargetFrameworks>
+        <UseWindowsForms>true</UseWindowsForms>
+        <ApplicationIcon>Resources\as.ico</ApplicationIcon>
+        <Version>1.36.00</Version>
+        <AssemblyVersion>1.36.00</AssemblyVersion>
+        <FileVersion>1.36.00</FileVersion>
+        <Copyright>Copyright © Razmoth 2022; Copyright © Perfare 2018-2022</Copyright>
+        <DebugType>embedded</DebugType>
+        <AssemblyName>AssetStudio.GUI</AssemblyName>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <None Remove="Libraries\OpenTK.WinForms.dll" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Content Include="Libraries\OpenTK.WinForms.dll">
+            <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+        </Content>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\AssetStudio.Utility\AssetStudio.Utility.csproj" />
+        <ProjectReference Include="..\AssetStudio\AssetStudio.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <EmbeddedResource Update="Properties\Resources.resx">
+            <Generator>ResXFileCodeGenerator</Generator>
+            <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+        </EmbeddedResource>
+        <Compile Update="Properties\Resources.Designer.cs">
+            <AutoGen>True</AutoGen>
+            <DependentUpon>Resources.resx</DependentUpon>
+            <DesignTime>True</DesignTime>
+        </Compile>
+        <Compile Update="Properties\Settings.Designer.cs">
+            <DesignTimeSharedInput>True</DesignTimeSharedInput>
+            <AutoGen>True</AutoGen>
+            <DependentUpon>Settings.settings</DependentUpon>
+        </Compile>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ContentWithTargetPath Include="Libraries\x86\*.dll;Libraries\x86\*.lib">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <TargetPath>x86\%(Filename)%(Extension)</TargetPath>
+        </ContentWithTargetPath>
+        <ContentWithTargetPath Include="Libraries\x64\*.dll;Libraries\x64\*.lib">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <TargetPath>x64\%(Filename)%(Extension)</TargetPath>
+        </ContentWithTargetPath>
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+        <PackageReference Include="OpenTK" Version="4.8.0" />
+        <Reference Include="OpenTK.WinForms">
+            <HintPath>Libraries\OpenTK.WinForms.dll</HintPath>
+        </Reference>
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Update="Properties\Settings.settings">
+            <Generator>SettingsSingleFileGenerator</Generator>
+            <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+        </None>
+    </ItemGroup>
+
+    <Target Name="CopyExtraFiles" AfterTargets="AfterBuild;Publish">
+    <ItemGroup>
+        <FBXNativeDlls Include="$(SolutionDir)AssetStudio.FBXNative\bin\Win32\$(Configuration)\AssetStudio.FBXNative.dll;$(SolutionDir)AssetStudio.FBXNative\bin\x64\$(Configuration)\AssetStudio.FBXNative.dll" />
+        <NeededDlls Include="$(SolutionDir)AssetStudio.GUI\plugins\oo2core_9_win64.dll;$(SolutionDir)AssetStudio.GUI\plugins\UnityPlayer.dll" />
+    </ItemGroup>
+    <Copy SourceFiles="@(FBXNativeDlls)" DestinationFiles="@(FBXNativeDlls->'$(TargetDir)$(Platform)\%(Filename)%(Extension)')" ContinueOnError="true" Condition="Exists('%(FullPath)')" />
+    <Copy SourceFiles="@(NeededDlls)" DestinationFolder="$(OutDir)" SkipUnchangedFiles="True" />
+    <Copy SourceFiles="@(FBXNativeDlls)" DestinationFiles="@(FBXNativeDlls->'$(PublishDir)$(Platform)\%(Filename)%(Extension)')" ContinueOnError="true" Condition="Exists('%(FullPath)') And '$(PublishDir)'!=''" />
+</Target>
+
+</Project>
+    
